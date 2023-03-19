@@ -5,10 +5,13 @@ Connects UI to Database
 import psycopg2
 from sshtunnel import SSHTunnelForwarder
 
-username = "YOUR_CS_USERNAME"
-password = "YOUR_CS_PASSWORD"
-dbName = "YOUR_DB_NAME"
+with open("credentials.txt") as f:
+    creds = [x.split(":")[1].strip() for x in f.readlines()]
+    
 
+username = creds[0]
+password = creds[1]
+dbName = creds[2]
 
 try:
     with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
