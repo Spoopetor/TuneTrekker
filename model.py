@@ -2,48 +2,60 @@
 Connects UI to Database
 '''
 
-import checkUser
+from datetime import datetime
 import psycopg2
 from sshtunnel import SSHTunnelForwarder
 
-with open("credentials.txt") as f:
-    creds = [x.split(":")[1].strip() for x in f.readlines()]
+def dbConnect():
+    with open("credentials.txt") as f:
+        creds = [x.split(":")[1].strip() for x in f.readlines()]
+        
+
+    username = creds[0]
+    password = creds[1]
+    dbName = creds[2]
+
+    try:
+        with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
+                                ssh_username=username,
+                                ssh_password=password,
+                                remote_bind_address=('localhost', 5432)) as server:
+            server.start()
+            print("SSH tunnel established")
+            params = {
+                'database': dbName,
+                'user': username,
+                'password': password,
+                'host': 'localhost',
+                'port': server.local_bind_port
+            }
+ 
+            return psycopg2.connect(**params)
+    except:
+        print("Connection failed")
+
+
+def checkUser(username):
+    conn = dbConnect()
+    curs = conn.cursor()
+    curs.execute("SELECT * from \"User\" WHERE username = '{}';".format(username))
+    conn.close()
+    return(curs.fetchall() != [])
     
 
-username = creds[0]
-password = creds[1]
-dbName = creds[2]
-
-with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
-                        ssh_username=username,
-                        ssh_password=password,
-                        remote_bind_address=('localhost', 5432)) as server:
-    server.start()
-    print("SSH tunnel established")
-    params = {
-        'database': dbName,
-        'user': username,
-        'password': password,
-        'host': 'localhost',
-        'port': server.local_bind_port
-    }
-
-
-    conn = psycopg2.connect(**params)
+def createUser(username, password, fname, lname, email):
+    
+    now = datetime.now()
+    dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
+    createUserQuery = "insert into \"User\" values('1000','{}','{}','{}','{}','{}','{}');".format(dt_string, username, password, fname, lname, email)
+    conn = dbConnect()
     curs = conn.cursor()
-    checkUser.createUser(curs, "jared45")
-    conn.commit()
-    username = str(input("What is your username? "))
-    if checkUser.checkUser(curs, username):
-        print("This user exists :D")
-    else:
-        print("No user with username: " + username + "!!")
-        ans = str(input("Would you like to create an account? (0 for no 1 for yes)"))
-        if ans == "1":
-            checkUser.createUser(curs, username)
-        else:
-            print("Have a great day!!")
-    print("Database connection established")
-    conn.close()
-#except:
-    #print("Connection failed")
+    try:
+        curs.execute(createUserQuery)
+        curs.commit()
+        print("User Successfully Created!")
+    except:
+        print("Failed to Create User!")
+    finally:
+        conn.close()
+    
