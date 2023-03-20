@@ -4,7 +4,7 @@ helpMessage = "Commands:\ncreate account - begins account creation process.\n"
 
 print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for command list.")
 
-while(True):
+while True:
     command = input(">> ").lower()
 
     match command:
@@ -12,19 +12,19 @@ while(True):
             print(helpMessage)
         
         case "create account":
-            while(True):
+            while True:
                 username = str(input("What would you like your username to be? "))
-                if(not checkUser(username)):
-                    while(True):
+                if not checkUser(username):
+                    while True:
                         password = str(input("Enter a password (8 character or greater): "))
-                        if(len(password) >= 8):
+                        if len(password) >= 8:
                             break
                         print("Password too short!")
                     fname = str(input("What is your first name? "))
                     lname = str(input("What is your last name? "))
-                    while(True):
+                    while True:
                         email = str(input("What is a good email? "))
-                        if(email.contains("@") and email.contains(".")):
+                        if "@" in email and "." in email:
                             break
                         print("Invalid email!")
 
@@ -32,8 +32,5 @@ while(True):
                     break
                 else:
                     print("Username is taken!")
-            
-
-
         case _:
             print("Unknown Command!")
