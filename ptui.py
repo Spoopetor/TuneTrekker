@@ -4,6 +4,8 @@ helpMessage = "Commands:\ncreate account - begins account creation process.\n"
 
 print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for command list.")
 
+dbm = Model()
+
 while True:
     command = input(">> ").lower()
 
@@ -14,7 +16,7 @@ while True:
         case "create account":
             while True:
                 username = str(input("What would you like your username to be? "))
-                if not checkUser(username):
+                if not dbm.checkUser(username):
                     while True:
                         password = str(input("Enter a password (8 character or greater): "))
                         if len(password) >= 8:
@@ -28,9 +30,15 @@ while True:
                             break
                         print("Invalid email!")
 
-                    createUser(username, password, fname, lname, email)
+                    dbm.createUser(username, password, fname, lname, email)
                     break
                 else:
                     print("Username is taken!")
+        case "login":
+            username = input("Enter Username: ")
+            password = input("Enter Password: ")
+
+            dbm.login(username, password)
+
         case _:
             print("Unknown Command!")
