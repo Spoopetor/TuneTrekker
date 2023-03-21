@@ -25,7 +25,7 @@ class Model:
 
         now = datetime.now()
         dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        createUserQuery = "insert into \"User\" values('1001','{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256(password.encode('utf8')).hexdigest(), fname, lname, email)
+        createUserQuery = "insert into \"User\" (lastAccessed, username, password, fname, lname, email) values('{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256(password.encode('utf8')).hexdigest(), fname, lname, email)
         result = dbExecute(createUserQuery)
         if result:
             print("User Successfully Created!")
