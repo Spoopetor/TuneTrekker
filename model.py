@@ -14,6 +14,10 @@ class Model:
         pass
 
     loggedInUser = None
+    loggedInUID = None
+
+    def isLoggedIn(self):
+        return self.loggedInUser != None
 
     def checkUser(self, username):
         foundlist = dbExecute("SELECT * from \"User\" WHERE username = '{}';".format(username))
@@ -43,9 +47,26 @@ class Model:
 
         if userpassword[0][0] == hashword:
             self.loggedInUser = username
+            self.loggedInUID = dbExecute("SELECT uid FROM \"User\" WHERE username = '{}';".format(self.loggedInUser))[0][0]
             print("Logged in as {}!".format(username))
             return
         print("Incorrect Password!")
+
+    def follow(self, toFollow):
+        fid = dbExecute("SELECT uid from \"User\" WHERE email = '{}'".format(toFollow))
+
+        if fid == []:
+            print("Email does not exist!")
+            return
+        
+        return dbExecute("INSERT INTO \"Follows\" (follower, following) VALUES ({}, {});".format(self.loggedInUID, fid[0][0]))
+    
+    def listFollowing(self):
+        following = []
+        followingIDs = dbExecute("SELECT following FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
+        for f in followingIDs:
+            following.append(dbExecute("SELECT username, email FROM \"User\" WHERE uid = {};".format(f[0])))
+        return following
 
 
 def dbExecute(query):

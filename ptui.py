@@ -39,6 +39,25 @@ while True:
             password = input("Enter Password: ").strip()
 
             dbm.login(username, password)
-
+        case "follow":
+            if(dbm.isLoggedIn()):
+                toFollow = input("Enter the email of the account you want to follow: ")
+                if(dbm.follow(toFollow)):
+                    print("Followed {}!".format(toFollow))
+                else:
+                    print("Error Following {}!".format(toFollow))
+            else:
+                print("You must be logged in!")
+        case "following":
+            following = dbm.listFollowing()
+            if following != None and following != []:
+                print("{} is Following:".format(dbm.loggedInUser))
+                i = 1
+                for f in following:
+                    print("\t{}. {} - {}".format(i, f[0][0], f[0][1]))
+                    i+=1
+            else:
+                print("\tNot Following Anyone")
+                
         case _:
             print("Unknown Command!")
