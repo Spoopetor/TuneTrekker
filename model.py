@@ -57,7 +57,7 @@ class Model:
 
         if fid == []:
             print("Email does not exist!")
-            return
+            return False
         
         return dbExecute("INSERT INTO \"Follows\" (follower, following) VALUES ({}, {});".format(self.loggedInUID, fid[0][0]))
     
@@ -67,6 +67,16 @@ class Model:
         for f in followingIDs:
             following.append(dbExecute("SELECT username, email FROM \"User\" WHERE uid = {};".format(f[0])))
         return following
+    
+    def unfollow(self, toUnfollow):
+        fid = dbExecute("SELECT uid from \"User\" WHERE email = '{}'".format(toUnfollow))
+
+        if fid == []:
+            print("Email does not exist!")
+            return False
+        
+        return dbExecute("DELETE FROM \"Follows\" WHERE follower = '{}' and following = '{}';".format(self.loggedInUID, fid[0][0]))
+
 
 
 def dbExecute(query):

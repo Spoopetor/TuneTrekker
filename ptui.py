@@ -58,6 +58,15 @@ while True:
                     i+=1
             else:
                 print("\tNot Following Anyone")
+        case "unfollow":
+            if(dbm.isLoggedIn()):
+                toUnfollow = input("Enter the email of the account you want to unfollow: ")
+                if(dbm.unfollow(toUnfollow)):
+                    print("Unfollowed {}!".format(toUnfollow))
+                else:
+                    print("Error Unfollowing {}!".format(toUnfollow))
+            else:
+                print("You must be logged in!")
                 
         case _:
             print("Unknown Command!")
