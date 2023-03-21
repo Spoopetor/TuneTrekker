@@ -1,0 +1,1 @@
+This program uses features from Python 3.10. Please use 3.10 or higher otherwise the program will not run.
