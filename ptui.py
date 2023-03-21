@@ -18,7 +18,7 @@ while True:
                 username = str(input("What would you like your username to be? "))
                 if not dbm.checkUser(username):
                     while True:
-                        password = str(input("Enter a password (8 character or greater): "))
+                        password = str(input("Enter a password (8 character or greater): ")).strip()
                         if len(password) >= 8:
                             break
                         print("Password too short!")
@@ -36,7 +36,7 @@ while True:
                     print("Username is taken!")
         case "login":
             username = input("Enter Username: ")
-            password = input("Enter Password: ")
+            password = input("Enter Password: ").strip()
 
             dbm.login(username, password)
 
