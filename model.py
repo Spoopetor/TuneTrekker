@@ -77,6 +77,8 @@ class Model:
         
         return dbExecute("DELETE FROM \"Follows\" WHERE follower = '{}' and following = '{}';".format(self.loggedInUID, fid[0][0]))
 
+    def createPlaylist(self, pName):
+        return dbExecute("INSERT INTO \"Playlist\" (name, uid) VALUES ('{}', {});".format(pName, self.loggedInUID))
 
 
 def dbExecute(query):

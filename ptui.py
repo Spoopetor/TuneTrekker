@@ -68,5 +68,15 @@ while True:
             else:
                 print("You must be logged in!")
                 
+        case "create playlist":
+            if(dbm.isLoggedIn()):
+                pname = input("Enter a name for your playlist: ")
+                if(dbm.createPlaylist(pname)):
+                    print("Playlist Successfully Created!")
+                else:
+                    print("Error Making Playlist!")
+            else:
+                print("You must be logged in!")
+
         case _:
             print("Unknown Command!")
