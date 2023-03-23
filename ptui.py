@@ -12,6 +12,10 @@ while True:
     match command:
         case "help":
             print(helpMessage)
+
+        case "quit":
+            print("Bye Bye!")
+            exit(0)
         
         case "create account":
             while True:
