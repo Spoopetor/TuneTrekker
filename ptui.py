@@ -93,5 +93,70 @@ while True:
             else:
                 print("You must be logged in!")
 
+        case "rename playlist":
+            if(dbm.isLoggedIn()):
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2]/60)))
+                        i+=1
+                    
+                    while True:
+                        selection = input("Select Playlist ID to edit: ")
+                        if selection.isnumeric():
+                            if (int(selection) - 1) in range(len(playlists)):
+                                break
+                        else:
+                            print("Invalid Selection (must be a number)")
+                    selectedIndex = int(selection) - 1
+                    newName = input("Enter a new name for \"{}\": ".format(playlists[selectedIndex][0]))
+                    if dbm.renamePlaylist(playlists[selectedIndex][3], newName):
+                        print("Renamed playlist to \"{}\"".format(newName))
+                    else:
+                        print("Error renaming playlist")
+                    
+                else:
+                    print("\tNo Playlists!")
+                    continue
+            else:
+                print("You must be logged in!")
+
+        case "delete playlist":
+            if(dbm.isLoggedIn()):
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2]/60)))
+                        i+=1
+                    
+                    while True:
+                        selection = input("Select Playlist ID to delete: ")
+                        if selection.isnumeric():
+                            if (int(selection) - 1) in range(len(playlists)):
+                                break
+                        else:
+                            print("Invalid Selection (must be a number)")
+                    selectedIndex = int(selection) - 1
+                    certain = ["y", "n"]
+                    while True:
+                        forActual = input("Are you sure you want to DELETE \"{}\"!? (y/n): ".format(playlists[selectedIndex][0]))
+                        if(forActual.lower()[0] in certain):
+                            break  
+                        print("Invalid Selection!")     
+                    if dbm.deletePlaylist(playlists[selectedIndex][3]):
+                        print("Deleted playlist \"{}\"!".format(playlists[selectedIndex][0]))
+                    else:
+                        print("Error deleting playlist")
+                    
+                else:
+                    print("\tNo Playlists!")
+                    continue
+            else:
+                print("You must be logged in!")
+
         case _:
             print("Unknown Command!")

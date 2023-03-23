@@ -94,10 +94,15 @@ class Model:
             for s in psongs:
                 count += 1
                 playtime += dbExecute("SELECT length FROM \"Song\" WHERE sid = {}".format(s[0]))[0][0]
-            playlists.append((p[0], count, playtime))
+            playlists.append((p[0], count, playtime, p[1]))
 
         return playlists
+    
+    def renamePlaylist(self, pid, newName):
+        return dbExecute("UPDATE \"Playlist\" SET name = '{}' WHERE pid = {};".format(newName, pid))
 
+    def deletePlaylist(self, pid):
+        return dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
 
 def dbExecute(query):
 
