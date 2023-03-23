@@ -84,8 +84,18 @@ class Model:
         return dbExecute("INSERT INTO \"Playlist\" (name, uid) VALUES ('{}', {});".format(pName, self.loggedInUID))
     
     def listPlaylists(self):
+        playlistIDs = []
+        playlistIDs = dbExecute("SELECT name, pid FROM \"Playlist\" WHERE uid = {} ORDER BY name ASC;".format(self.loggedInUID))
         playlists = []
-        playlists = dbExecute("SELECT name FROM \"Playlist\" WHERE uid = {} ORDER BY name ASC;".format(self.loggedInUID))
+        for p in playlistIDs:
+            psongs = dbExecute("SELECT sid FROM \"SongPlaylist\" WHERE pid = {}".format(p[1]))
+            count = 0
+            playtime = 0
+            for s in psongs:
+                count += 1
+                playtime += dbExecute("SELECT length FROM \"Song\" WHERE sid = {}".format(s[0]))[0][0]
+            playlists.append((p[0], count, playtime))
+
         return playlists
 
 

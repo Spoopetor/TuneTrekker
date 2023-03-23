@@ -1,4 +1,5 @@
 from model import *
+import math
 
 helpMessage = "Commands:\ncreate account - begins account creation process.\n"
 
@@ -85,10 +86,10 @@ while True:
                     print("{}'s Playlists:".format(dbm.loggedInUser))
                     i = 1
                     for p in playlists:
-                        print("\t{}. {}".format(i, p[0]))
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2]/60)))
                         i+=1
                 else:
-                    print("\tNot Following Anyone")
+                    print("\tNo Playlists!")
             else:
                 print("You must be logged in!")
 
