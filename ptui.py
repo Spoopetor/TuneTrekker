@@ -48,7 +48,7 @@ while True:
                     print("Error Following {}!".format(toFollow))
             else:
                 print("You must be logged in!")
-        case "following":
+        case "list following":
             following = dbm.listFollowing()
             if following != None and following != []:
                 print("{} is Following:".format(dbm.loggedInUser))
@@ -75,6 +75,20 @@ while True:
                     print("Playlist Successfully Created!")
                 else:
                     print("Error Making Playlist!")
+            else:
+                print("You must be logged in!")
+
+        case "list playlists":
+            if(dbm.isLoggedIn()):
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{}. {}".format(i, p[0]))
+                        i+=1
+                else:
+                    print("\tNot Following Anyone")
             else:
                 print("You must be logged in!")
 

@@ -48,6 +48,9 @@ class Model:
         if userpassword[0][0] == hashword:
             self.loggedInUser = username
             self.loggedInUID = dbExecute("SELECT uid FROM \"User\" WHERE username = '{}';".format(self.loggedInUser))[0][0]
+            now = datetime.now()
+            dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
+            dbExecute("UPDATE \"User\" SET lastAccessed = '{}' WHERE uid = {};".format(dt_string, self.loggedInUID))
             print("Logged in as {}!".format(username))
             return
         print("Incorrect Password!")
@@ -79,6 +82,11 @@ class Model:
 
     def createPlaylist(self, pName):
         return dbExecute("INSERT INTO \"Playlist\" (name, uid) VALUES ('{}', {});".format(pName, self.loggedInUID))
+    
+    def listPlaylists(self):
+        playlists = []
+        playlists = dbExecute("SELECT name FROM \"Playlist\" WHERE uid = {} ORDER BY name ASC;".format(self.loggedInUID))
+        return playlists
 
 
 def dbExecute(query):
