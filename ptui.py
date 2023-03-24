@@ -1,7 +1,14 @@
 from model import *
 import math
 
-helpMessage = "Commands:\ncreate account - begins account creation process.\n"
+helpMessage = "Commands:\ncreate account - begins account creation process.\n\nlogin - login to account.\n\n" \
+              "follow - allows you to follow another user by email.\n\nlist following - lists all the users you are following.\n\n" \
+              "unfollow - lets you unfollow someone.\n\ncreate playlist - lets you create a playlist to store songs.\n\n" \
+              "list playlist - lists all of your playlists.\n\nrename playlist - lets you rename a playlist.\n\n" \
+              "delete playlist - delete one of your playlists.\n\nadd song - adds a song to a playlist.\n\n" \
+              "remove song - removes a song from a playlist.\n\nadd ablum - adds an entire album of songs to a playlist.\n\n" \
+              "remove album - removes an entire album of songs from a playlist.\n\nsearch song - lets you search for a song by name, artist" \
+              ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\nquit - ends the application."
 
 print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for command list.")
 
@@ -301,9 +308,9 @@ while True:
             else:
                 print("Must be logged in!!!")
 
-        case "delete album":
+        case "remove album":
             if dbm.isLoggedIn():
-                album = input("What album would you like to delete?: ")
+                album = input("What album would you like to remove?: ")
                 albumlist = dbm.findAlbums(album)
                 i = 1
                 print("Here are the albums that match what you searched for: \n\t")
@@ -311,7 +318,7 @@ while True:
                     print("\t{0: <3}: {1: <18}".format(i, s[0]))
                     i += 1
                 while True:
-                    finalChoice = input("Which of these would you like to delete?: ")
+                    finalChoice = input("Which of these would you like to remove?: ")
                     if not finalChoice.isnumeric() or int(finalChoice) > i:
                         print("Invalid Choice!!")
                     break
@@ -324,7 +331,7 @@ while True:
                                                                                             math.ceil(p[2] / 60)))
                         i += 1
                 while True:
-                    playlist = input("Which of your above playlists would you like to delete this album from?: ")
+                    playlist = input("Which of your above playlists would you like to remove this album from?: ")
                     if playlist.isnumeric():
                         if (int(playlist) - 1) in range(len(playlists)):
                             break
@@ -336,9 +343,9 @@ while True:
                 for x in sidListTuple:
                     sidList.append(x[0])
                 if dbm.deleteAlbum(pid, sidList):
-                    print("Successfully deleted album from playlist!")
+                    print("Successfully removed album from playlist!")
                 else:
-                    print("Error deleting album!!")
+                    print("Error removing album!!")
             else:
                 print("Must be logged in!!!")
 
