@@ -129,6 +129,12 @@ class Model:
             dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
         return
 
+    def addSong(self, pid, sidList):
+        inList = dbExecute("SELECT sid from \"SongPlaylist\";")
+        sidList = [x for x in sidList if x not in inList]
+        for i in sidList:
+            dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
+
 def dbExecute(query):
 
     with open("credentials.txt") as f:
