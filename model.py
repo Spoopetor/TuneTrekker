@@ -165,10 +165,25 @@ class Model:
         return songinfo
 
     def searchSongArtist(self, name):
-        pass
+        artistidlist = dbExecute("SELECT artistid FROM \"Artist\" WHERE name LIKE '%{}%';".format(name))
+        artistidtup = tuplistToString(artistidlist)
+        artistidstring = '(' + artistidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongArtist\" WHERE artistid IN {};".format(artistidstring))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
 
     def searchAlbumName(self, name):
-        sidlist = dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid = (SELECT albumid FROM \"Album\" WHERE name LIKE '%{}%');".format(name))
+        albumidlist = dbExecute("SELECT albumid FROM \"Album\" WHERE name LIKE '%{}%';".format(name))
+        albumidtup = tuplistToString(albumidlist)
+        albumidstring = '(' + albumidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid IN {};".format(albumidstring))
         sidtup = tuplistToString(sidlist)
         sidstring = "(" + sidtup + ")"
         songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
