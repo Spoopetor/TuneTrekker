@@ -139,6 +139,21 @@ class Model:
                 return False
         return True
 
+    def deleteAlbum(self, pid, sidList):
+        inList = dbExecute("SELECT sid from \"SongPlaylist\" where pid = {};".format(pid))
+        for x in sidList:
+            if x in inList[0:len(inList)][0]:
+                continue
+            else:
+                sidList.remove(x)
+        print(sidList)
+        for i in sidList:
+            if dbExecute("DELETE FROM \"SongPlaylist\" where (sid = {} and  pid = {});".format(i, pid)):
+                continue
+            else:
+                return False
+        return True
+
 
     def searchSongName(self, title):
         songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE title LIKE '%{}%' ORDER BY title ASC;".format(title))

@@ -301,6 +301,46 @@ while True:
             else:
                 print("Must be logged in!!!")
 
+        case "delete album":
+            if dbm.isLoggedIn():
+                album = input("What album would you like to delete?: ")
+                albumlist = dbm.findAlbums(album)
+                i = 1
+                print("Here are the albums that match what you searched for: \n\t")
+                for s in albumlist:
+                    print("\t{0: <3}: {1: <18}".format(i, s[0]))
+                    i += 1
+                while True:
+                    finalChoice = input("Which of these would you like to delete?: ")
+                    if not finalChoice.isnumeric() or int(finalChoice) > i:
+                        print("Invalid Choice!!")
+                    break
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1],
+                                                                                            math.ceil(p[2] / 60)))
+                        i += 1
+                while True:
+                    playlist = input("Which of your above playlists would you like to delete this album from?: ")
+                    if playlist.isnumeric():
+                        if (int(playlist) - 1) in range(len(playlists)):
+                            break
+                    else:
+                        print("Invalid Selection (must be a number)")
+                pid = playlists[int(playlist) - 1][3]
+                sidListTuple = dbm.getSongsFromAlbum(albumlist[int(finalChoice) - 1][1])
+                sidList = []
+                for x in sidListTuple:
+                    sidList.append(x[0])
+                if dbm.deleteAlbum(pid, sidList):
+                    print("Successfully deleted album from playlist!")
+                else:
+                    print("Error deleting album!!")
+            else:
+                print("Must be logged in!!!")
 
         case "search song":
             searches = ["song name", "artist", "album", "genre"]
