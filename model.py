@@ -7,6 +7,11 @@ import psycopg2
 from sshtunnel import SSHTunnelForwarder
 import hashlib
 
+def tuplistToString(tuplist):
+    out = ""
+    for x in tuplist:
+        out += str(x[0]) + ", "
+    return out[:-2]
 
 class Model:
 
@@ -106,7 +111,7 @@ class Model:
     
     def removeSong(self, pid, sid):
         
-        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (pid = {} AND sid = {});".format(pid, sid))
+        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (sid = {} AND pid = {});".format(sid, pid))
     
     def listSongs(self, pid):
         songIDs = []
@@ -123,11 +128,106 @@ class Model:
         return songs
 
     def addSong(self, pid, sidList):
-        inList = dbExecute("SELECT sid from \"SongPlaylist\";")
-        sidList = [x for x in sidList if x not in inList]
+        inList = dbExecute("SELECT sid from \"SongPlaylist\" where pid = {};".format(pid))
+        for x in inList:
+            if x[0] in sidList:
+                sidList.remove(x[0])
         for i in sidList:
-            dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
-        return
+            if dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid)):
+                continue
+            else:
+                return False
+        return True
+
+    def deleteAlbum(self, pid, sidList):
+        inList = dbExecute("SELECT sid from \"SongPlaylist\" where pid = {};".format(pid))
+        remList = []
+        for x in inList:
+            if x[0] in sidList:
+                remList.append(x[0])
+        for i in remList:
+            if dbExecute("DELETE FROM \"SongPlaylist\" where (sid = {} and  pid = {});".format(i, pid)):
+                continue
+            else:
+                return False
+        return True
+
+
+    def searchSongName(self, title):
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE title LIKE '%{}%' ORDER BY title ASC;".format(title))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def searchSongArtist(self, name):
+        artistidlist = dbExecute("SELECT artistid FROM \"Artist\" WHERE name LIKE '%{}%';".format(name))
+        artistidtup = tuplistToString(artistidlist)
+        artistidstring = '(' + artistidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongArtist\" WHERE artistid IN {};".format(artistidstring))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def searchAlbumName(self, name):
+        albumidlist = dbExecute("SELECT albumid FROM \"Album\" WHERE name LIKE '%{}%';".format(name))
+        albumidtup = tuplistToString(albumidlist)
+        albumidstring = '(' + albumidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid IN {};".format(albumidstring))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def searchGenreType(self, genre):
+        gidlist = dbExecute("SELECT gid FROM \"Genre\" WHERE name LIKE '%{}%';".format(genre))
+        gidtup = tuplistToString(gidlist)
+        gidstring = '(' + gidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongGenre\" WHERE gid IN {};".format(gidstring))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def findAlbums(self, name):
+        return dbExecute("SELECT name, albumid FROM \"Album\" WHERE name  LIKE '%{}%';".format(name))
+
+    def getSongsFromAlbum(self, albumid):
+        return dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid = {};".format(albumid))
+
+    def playSong(self, sid):
+        now = datetime.now()
+        datetime_string = now.strftime("%Y-%m-%d %H:%M:%S")
+        dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, sid, datetime_string, 1, datetime_string))
+        dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(sid))
+
+    def playPlaylist(self, pid):
+        sidlist = dbExecute("SELECT sid FROM \"SongPlaylist\" WHERE pid = {};".format(pid))
+        for x in sidlist:
+            now = datetime.now()
+            datetime_string = now.strftime("%Y-%m-%d %H:%M:%S")
+            dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, x[0], datetime_string, 1, datetime_string))
+            dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(x[0]))
+
+
 
 def dbExecute(query):
 
@@ -137,6 +237,10 @@ def dbExecute(query):
         sshuser = creds[0]
         sshpass = creds[1]
         dbName = creds[2]
+
+        if sshuser == "" or sshpass == "" or dbName == "":
+            print("Invalid DB Credentials!\nPlease Enter Credentials in credentials.txt!")
+            exit(1)
 
         try:
             with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
