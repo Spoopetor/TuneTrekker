@@ -402,6 +402,36 @@ while True:
                     for s in songslist:
                         print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1],tuplistToString(s[2]),tuplistToString(s[3]),math.ceil(int(s[4]) / 60),s[5]))
                         i += 1
+        case listen:
+            searches = ["song", "playlist"]
+            while True:
+                choice = input("Would you like to listen to a song or a playlist?: (input song or playlist)").lower()
+                if(choice in searches):
+                    break
+            match choice:
+                #case "song":
+
+
+                case "playlist":
+                    playlists = dbm.listPlaylists()
+                    if playlists != None and playlists != []:
+                        print("{}'s Playlists:".format(dbm.loggedInUser))
+                        i = 1
+                        for p in playlists:
+                            print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1],math.ceil(p[2] / 60)))
+                            i += 1
+                    while True:
+                        playlist = input("Which of your above playlists would you like to listen to?: ")
+                        if playlist.isnumeric():
+                            if (int(playlist) - 1) in range(len(playlists)):
+                                break
+                        else:
+                            print("Invalid Selection (must be a number)")
+                    pid = playlists[int(playlist)-1][3]
+
+
+
+
 
         case _:
             print("Unknown Command!")
