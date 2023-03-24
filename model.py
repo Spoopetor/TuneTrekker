@@ -106,7 +106,7 @@ class Model:
     
     def removeSong(self, pid, sid):
         
-        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (pid = {} AND sid = {});".format(pid, sid))
+        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (sid = {} AND pid = {});".format(sid, pid))
     
     def listSongs(self, pid):
         songIDs = []
@@ -129,6 +129,17 @@ class Model:
             dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
         return
 
+    def searchSongName(self, title):
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE title LIKE '%{}%' ORDER BY title ASC;".format(title))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def searchSongArtist(self, name):
+        pass
 
 def dbExecute(query):
 

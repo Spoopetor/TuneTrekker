@@ -7,6 +7,12 @@ print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for 
 
 dbm = Model()
 
+def tuplistToString(tuplist):
+    out = ""
+    for x in tuplist:
+        out += x[0] + ", "
+    return out[:-2]
+
 while True:
     command = input(">> ").lower()
 
@@ -215,6 +221,29 @@ while True:
                     continue
             else:
                 print("You must be logged in!")
+
+        case "search song":
+            searches = ["song name", "artist", "album", "genre"]
+            while True:
+                searchType = input("Search By <Song Name, Artist, Album, Genre>: ").lower()
+                if(searchType in searches):
+                    break
+            
+            match searchType:
+                case "song name":
+                    title = input("What title would you like to search for?: ")
+                    songslist = dbm.searchSongName(title)
+
+                    ##OTHER SEARCHES
+
+                    if songslist == None or songslist == []:
+                        print("No Results!")
+                        continue
+                    i = 1
+                    print("SONGS:\n\t{0: <3}: {1: <18}: {2: <40}: {3: <40}".format("#", "TITLE", "ARTIST(s)", "ALBUM(s)"))
+                    for s in songslist:
+                        print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1], tuplistToString(s[2]), tuplistToString(s[3]), math.ceil(int(s[4])/60), s[5]))
+                        i += 1
 
         case _:
             print("Unknown Command!")
