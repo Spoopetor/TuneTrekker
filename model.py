@@ -104,6 +104,12 @@ class Model:
     def deletePlaylist(self, pid):
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE pid = {};".format(pid)) and dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
 
+    def addSong(self, pid, sidList):
+        inList = dbExecute("SELECT sid from \"SongPlaylist\";")
+        sidList = [x for x in sidList if x not in inList]
+        for i in sidList:
+            dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
+
 def dbExecute(query):
 
     with open("credentials.txt") as f:
