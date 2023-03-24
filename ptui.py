@@ -362,6 +362,7 @@ while True:
                     for s in songslist:
                         print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1], tuplistToString(s[2]), tuplistToString(s[3]), math.ceil(int(s[4])/60), s[5]))
                         i += 1
+
                 case "artist":
                     name = input("What artist would you like to search for?: ")
                     songslist = dbm.searchSongArtist(name)
@@ -375,6 +376,7 @@ while True:
                     for s in songslist:
                         print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1], tuplistToString(s[2]), tuplistToString(s[3]), math.ceil(int(s[4]) / 60), s[5]))
                         i += 1
+
                 case "album":
                     name = input("What album would you like to search for?: ")
                     songslist = dbm.searchAlbumName(name)
@@ -386,6 +388,19 @@ while True:
                     print("SONGS:\n\t{0: <3}: {1: <18}: {2: <40}: {3: <40}".format("#", "TITLE", "ARTIST(s)", "ALBUM(s)"))
                     for s in songslist:
                         print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1], tuplistToString(s[2]), tuplistToString(s[3]), math.ceil(int(s[4])/60), s[5]))
+                        i += 1
+
+                case "genre":
+                    genre = input("What genre would you like to search for?: ")
+                    songslist = dbm.searchGenreType(genre)
+
+                    if songslist == None or songslist == []:
+                        print("No Results!")
+                        continue
+                    i = 1
+                    print("SONGS:\n\t{0: <3}: {1: <18}: {2: <40}: {3: <40}".format("#", "TITLE", "ARTIST(s)", "ALBUM(s)"))
+                    for s in songslist:
+                        print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1],tuplistToString(s[2]),tuplistToString(s[3]),math.ceil(int(s[4]) / 60),s[5]))
                         i += 1
 
         case _:

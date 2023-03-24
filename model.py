@@ -194,6 +194,21 @@ class Model:
             songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
         return songinfo
 
+    def searchGenreType(self, genre):
+        gidlist = dbExecute("SELECT gid FROM \"Genre\" WHERE name LIKE '%{}%';".format(genre))
+        gidtup = tuplistToString(gidlist)
+        gidstring = '(' + gidtup + ')'
+        sidlist = dbExecute("SELECT sid FROM \"SongGenre\" WHERE gid IN {};".format(gidstring))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
     def findAlbums(self, name):
         return dbExecute("SELECT name, albumid FROM \"Album\" WHERE name  LIKE '%{}%';".format(name))
 
