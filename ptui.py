@@ -162,5 +162,59 @@ while True:
             else:
                 print("You must be logged in!")
 
+        case "remove song":
+            if(dbm.isLoggedIn()):
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2]/60)))
+                        i+=1
+                    
+                    while True:
+                        selection = input("Select Playlist ID to remove from: ")
+                        if selection.isnumeric():
+                            if (int(selection) - 1) in range(len(playlists)):
+                                break
+                        else:
+                            print("Invalid Selection (must be a number)")
+                    selectedIndex = int(selection) - 1
+                    
+                    playlistSongs = dbm.listSongs(playlists[selectedIndex][3])
+                    if playlistSongs != False:
+                        print("{}:".format(playlists[selectedIndex][0]))
+                        i = 1
+                        for s in playlistSongs:
+                            print("\t{0: <3} :  {1}".format(i, s[0]))
+                            i+=1
+                        
+                        while True:
+                            selection = input("Select Song ID to remove from: ")
+                            if selection.isnumeric():
+                                if (int(selection) - 1) in range(len(playlists)):
+                                    break
+                            else:
+                                print("Invalid Selection (must be a number)")
+                        songIndex = int(selection) - 1
+                        certain = ["y", "n"]
+                        while True:
+                            forActual = input("Are you sure you want to remove \"{}\"!? (y/n): ".format(playlistSongs[songIndex][0]))
+                            if(forActual.lower()[0] in certain):
+                                break  
+                            print("Invalid Selection!")     
+                        if dbm.removeSong(playlists[selectedIndex], playlistSongs[songIndex][1]):
+                            print("Removed \"{}\" from \"{}\"!".format(playlistSongs[songIndex][0], playlists[selectedIndex][0]))
+                        else:
+                            print("Error removing song!")
+                    else:
+                        print("\tNo Songs!")
+                    continue
+                else:
+                    print("\tNo Playlists!")
+                    continue
+            else:
+                print("You must be logged in!")
+
         case _:
             print("Unknown Command!")
