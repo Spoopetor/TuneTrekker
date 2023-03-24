@@ -402,16 +402,29 @@ while True:
                     for s in songslist:
                         print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1],tuplistToString(s[2]),tuplistToString(s[3]),math.ceil(int(s[4]) / 60),s[5]))
                         i += 1
-        case listen:
+
+        case "listen":
             searches = ["song", "playlist"]
             while True:
-                choice = input("Would you like to listen to a song or a playlist?: (input song or playlist)").lower()
+                choice = input("Would you like to listen to a song or a playlist (input song or playlist)?: ").lower()
                 if(choice in searches):
                     break
             match choice:
-                #case "song":
+                case "song":
+                    title = input("What title would you like to search for?: ")
+                    songslist = dbm.searchSongName(title)
 
-
+                    if songslist == None or songslist == []:
+                        print("No Results!")
+                        continue
+                    i = 1
+                    print("SONGS:\n\t{0: <3}: {1: <18}: {2: <40}: {3: <40}".format("#", "TITLE", "ARTIST(s)", "ALBUM(s)"))
+                    for s in songslist:
+                        print("\t{0: <3}: {1: <18}: {2: <40}: {3: <40}: {4: <3} Minutes :   {5: <5} Listens".format(i, s[1], tuplistToString(s[2]), tuplistToString(s[3]), math.ceil(int(s[4]) / 60), s[5]))
+                        i += 1
+                    choice = input("Which of these songs would you like to listen to?: ")
+                    dbm.playSong(songslist[int(choice) - 1][0])
+                    print("Listened to " + songslist[int(choice)-1][1])
                 case "playlist":
                     playlists = dbm.listPlaylists()
                     if playlists != None and playlists != []:
@@ -429,7 +442,7 @@ while True:
                             print("Invalid Selection (must be a number)")
                     pid = playlists[int(playlist)-1][3]
                     dbm.playPlaylist(pid)
-                    print("Listened to ")
+                    print("Listened to " + playlists[int(playlist)-1][0])
 
 
 

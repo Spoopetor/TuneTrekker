@@ -215,6 +215,12 @@ class Model:
     def getSongsFromAlbum(self, albumid):
         return dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid = {};".format(albumid))
 
+    def playSong(self, sid):
+        now = datetime.now()
+        datetime_string = now.strftime("%Y-%m-%d %H:%M:%S")
+        dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, sid, datetime_string, 1, datetime_string))
+        dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(sid))
+
     def playPlaylist(self, pid):
         sidlist = dbExecute("SELECT sid FROM \"SongPlaylist\" WHERE pid = {};".format(pid))
         for x in sidlist:
@@ -222,7 +228,6 @@ class Model:
             datetime_string = now.strftime("%Y-%m-%d %H:%M:%S")
             dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, x[0], datetime_string, 1, datetime_string))
             dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(x[0]))
-        return
 
 
 
