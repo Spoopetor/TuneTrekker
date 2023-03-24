@@ -93,7 +93,7 @@ class Model:
             playtime = 0
             for s in psongs:
                 count += 1
-                playtime += dbExecute("SELECT length FROM \"Song\" WHERE sid = {}".format(s[0]))[0][0]
+                playtime += int(dbExecute("SELECT length FROM \"Song\" WHERE sid = {}".format(s[0]))[0][0])
             playlists.append((p[0], count, playtime, p[1]))
 
         return playlists
@@ -102,7 +102,7 @@ class Model:
         return dbExecute("UPDATE \"Playlist\" SET name = '{}' WHERE pid = {};".format(newName, pid))
 
     def deletePlaylist(self, pid):
-        return dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
+        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE pid = {};".format(pid)) and dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
 
 def dbExecute(query):
 
