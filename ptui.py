@@ -4,7 +4,8 @@ import math
 helpMessage = "Commands:\ncreate account - begins account creation process.\n\nlogin - login to account.\n\n" \
               "follow - allows you to follow another user by email.\n\nlist following - lists all the users you are following.\n\n" \
               "unfollow - lets you unfollow someone.\n\ncreate playlist - lets you create a playlist to store songs.\n\n" \
-              "list playlist - lists all of your playlists.\n\nrename playlist - lets you rename a playlist.\n\n" \
+              "list playlists - lists all of your playlists.\n\nrename playlist - lets you rename a playlist.\n\n" \
+              "view playlist - lists all songs in a specified playlist\n\n"\
               "delete playlist - delete one of your playlists.\n\nadd song - adds a song to a playlist.\n\n" \
               "remove song - removes a song from a playlist.\n\nadd ablum - adds an entire album of songs to a playlist.\n\n" \
               "remove album - removes an entire album of songs from a playlist.\n\nsearch song - lets you search for a song by name, artist" \
