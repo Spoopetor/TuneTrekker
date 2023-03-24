@@ -203,7 +203,7 @@ while True:
                             if(forActual.lower()[0] in certain):
                                 break  
                             print("Invalid Selection!")     
-                        if dbm.removeSong(playlists[selectedIndex], playlistSongs[songIndex][1]):
+                        if dbm.removeSong(playlists[selectedIndex][3], playlistSongs[songIndex][1]):
                             print("Removed \"{}\" from \"{}\"!".format(playlistSongs[songIndex][0], playlists[selectedIndex][0]))
                         else:
                             print("Error removing song!")
