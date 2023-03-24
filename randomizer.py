@@ -60,4 +60,36 @@ def randomRatingListens():
         model.dbExecute("update \"Song\" set listencount = listencount + {} where sid = {};".format(listencount, sid))
         print("success")
 
-randomRatingListens()
+def assignAlbumArtist():
+    for x in range(1,501):
+        ids = model.dbExecute("select a1.albumid, a2.artistid from \"SongAlbum\" a1, \"SongArtist\" a2 where a1.sid = {} and (a2.sid = {});".format(x, x))
+        model.dbExecute("insert into \"AlbumArtist\" (albumid, artistid) values ({}, {});".format(ids[0][0], ids[0][1]))
+        print("success")
+
+def assignSongGenre():
+    for x in range(1,501):
+        ids = model.dbExecute("select a1.sid, a2.gid from \"SongAlbum\" a1, \"AlbumGenre\" a2 where a1.albumid = {} and (a2.albumid = {});".format(x, x))
+        for y in range(len(ids)):
+            model.dbExecute("insert into \"SongGenre\" (sid, gid) values ({}, {});".format(ids[y][0], ids[y][1]))
+            print("success")
+
+def randomSongPlaylist():
+    for x in range(101,104):
+        number = random.randint(1, 3)
+        if number == 1:
+            songs = random.sample(range(1, 501), 1)
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[0], x))
+            print("success")
+        elif number == 2:
+            songs = random.sample(range(1, 501), 2)
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[0], x))
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[1], x))
+            print("success")
+        else:
+            songs = random.sample(range(1, 501), 3)
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[0], x))
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[1], x))
+            model.dbExecute("insert into \"SongPlaylist\" (sid, pid) values ({}, {});".format(songs[2], x))
+            print("success")
+
+randomSongPlaylist()
