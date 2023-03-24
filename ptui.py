@@ -428,7 +428,8 @@ while True:
                         else:
                             print("Invalid Selection (must be a number)")
                     pid = playlists[int(playlist)-1][3]
-                    dbm.playPlaylist()
+                    dbm.playPlaylist(pid)
+                    print("Listened to ")
 
 
 
