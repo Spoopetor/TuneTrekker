@@ -103,12 +103,31 @@ class Model:
 
     def deletePlaylist(self, pid):
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE pid = {};".format(pid)) and dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
+    
+    def removeSong(self, pid, sid):
+        
+        return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (pid = {} AND sid = {});".format(pid, sid))
+    
+    def listSongs(self, pid):
+        songIDs = []
+        songIDs = dbExecute("SELECT sid FROM \"SongPlaylist\" WHERE pid = {};".format(pid))
+        if songIDs == [] or songIDs == None:
+            return False
+        songs = []
+        for p in songIDs:
+            song = dbExecute("SELECT title, sid FROM \"Song\" WHERE sid = {};".format(p[0]))
+            
+            
+            songs.append(song[0])
+
+        return songs
 
     def addSong(self, pid, sidList):
         inList = dbExecute("SELECT sid from \"SongPlaylist\";")
         sidList = [x for x in sidList if x not in inList]
         for i in sidList:
             dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
+        return
 
 def dbExecute(query):
 
@@ -149,6 +168,7 @@ def dbExecute(query):
                 
         except:
             print("Connection failed")
+            return False
         
         
 
