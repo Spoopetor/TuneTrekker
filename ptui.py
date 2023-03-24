@@ -168,6 +168,41 @@ while True:
             else:
                 print("You must be logged in!")
 
+        case "view playlist":
+            if(dbm.isLoggedIn()):
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2]/60)))
+                        i+=1
+                    while True:
+                        selection = input("Select Playlist ID to view: ")
+                        if selection.isnumeric():
+                            if (int(selection) - 1) in range(len(playlists)):
+                                break
+                        else:
+                            print("Invalid Selection (must be a number)")
+                    selectedIndex = int(selection) - 1
+                    
+                    playlistSongs = dbm.listSongs(playlists[selectedIndex][3])
+                    if playlistSongs != False:
+                            
+                        print("{}:".format(playlists[selectedIndex][0]))
+                        i = 1
+                        for s in playlistSongs:
+                            print("\t{0: <3} :  {1}".format(i, s[0]))
+                            i+=1
+                    else:
+                        print("No Songs in Playlist!")
+                        continue
+                else:
+                    print("\tNo Playlists!")
+                    continue
+            else:
+                print("You must be logged in!")
+
         case "remove song":
             if(dbm.isLoggedIn()):
                 playlists = dbm.listPlaylists()

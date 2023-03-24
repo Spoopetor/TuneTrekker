@@ -240,6 +240,10 @@ def dbExecute(query):
         sshpass = creds[1]
         dbName = creds[2]
 
+        if sshuser == "" or sshpass == "" or dbName == "":
+            print("Invalid DB Credentials!\nPlease Enter Credentials in credentials.txt!")
+            exit(1)
+
         try:
             with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
                                     ssh_username=sshuser,
