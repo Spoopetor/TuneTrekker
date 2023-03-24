@@ -7,6 +7,11 @@ import psycopg2
 from sshtunnel import SSHTunnelForwarder
 import hashlib
 
+def tuplistToString(tuplist):
+    out = ""
+    for x in tuplist:
+        out += str(x[0]) + ", "
+    return out[:-2]
 
 class Model:
 
@@ -123,11 +128,17 @@ class Model:
         return songs
 
     def addSong(self, pid, sidList):
-        inList = dbExecute("SELECT sid from \"SongPlaylist\";")
-        sidList = [x for x in sidList if x not in inList]
+        inList = dbExecute("SELECT sid from \"SongPlaylist\" where pid = {};".format(pid))
+        for x in inList:
+            if x[0] in sidList:
+                sidList.remove(x[0])
         for i in sidList:
-            dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid))
-        return
+            if dbExecute("INSERT INTO \"SongPlaylist\" (sid, pid) values ({}, {});".format(i, pid)):
+                continue
+            else:
+                return False
+        return True
+
 
     def searchSongName(self, title):
         songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE title LIKE '%{}%' ORDER BY title ASC;".format(title))
@@ -140,6 +151,24 @@ class Model:
 
     def searchSongArtist(self, name):
         pass
+
+    def searchAlbumName(self, name):
+        sidlist = dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid = (SELECT albumid FROM \"Album\" WHERE name LIKE '%{}%');".format(name))
+        sidtup = tuplistToString(sidlist)
+        sidstring = "(" + sidtup + ")"
+        songlist = dbExecute("SELECT sid, title, length, listenCount FROM \"Song\" WHERE sid IN {} ORDER BY title ASC;".format(sidstring))
+        songinfo = []
+        for s in songlist:
+            artists = dbExecute("SELECT name FROM \"Artist\" WHERE artistid = (SELECT artistid FROM \"SongArtist\" WHERE sid = {});".format(s[0]))
+            albums = dbExecute("SELECT name FROM \"Album\" WHERE albumid = (SELECT albumid FROM \"SongAlbum\" WHERE sid = {});".format(s[0]))
+            songinfo.append((s[0], s[1], artists, albums, s[2], s[3]))
+        return songinfo
+
+    def findAlbums(self, name):
+        return dbExecute("SELECT name, albumid FROM \"Album\" WHERE name  LIKE '%{}%';".format(name))
+
+    def getSongsFromAlbum(self, albumid):
+        return dbExecute("SELECT sid FROM \"SongAlbum\" WHERE albumid = {};".format(albumid))
 
 def dbExecute(query):
 

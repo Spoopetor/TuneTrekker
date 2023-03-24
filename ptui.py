@@ -222,6 +222,86 @@ while True:
             else:
                 print("You must be logged in!")
 
+
+        case "add song":
+            if dbm.isLoggedIn():
+                song = input("What song would you like to add?: ")
+                songslist = dbm.searchSongName(song)
+                i = 1
+                print("Here are the songs that match what you searched for: \n\t")
+                for s in songslist:
+                    print("\t{0: <3}: {1: <18}: {2: <40}".format(i, s[1], tuplistToString(s[2])))
+                    i += 1
+                while True:
+                    finalChoice = input("Which of these would you like to add?: ")
+                    if not finalChoice.isnumeric() or int(finalChoice) > i:
+                        print("Invalid Choice!!")
+                    break
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1], math.ceil(p[2] / 60)))
+                        i += 1
+                while True:
+                    playlist = input("Which of your above playlists would you like to add this song to?: ")
+                    if playlist.isnumeric():
+                        if (int(playlist) - 1) in range(len(playlists)):
+                            break
+                    else:
+                        print("Invalid Selection (must be a number)")
+                pid = playlists[int(playlist)-1][3]
+                sidList = [songslist[int(finalChoice)-1][0]]
+                if dbm.addSong(pid, sidList):
+                    print("Successfully added song to playlist!")
+                else:
+                    print("Error adding song!!")
+            else:
+                print("Must be logged in!!!")
+
+        case "add album":
+            if dbm.isLoggedIn():
+                album = input("What album would you like to add?: ")
+                albumlist = dbm.findAlbums(album)
+                i = 1
+                print("Here are the albums that match what you searched for: \n\t")
+                for s in albumlist:
+                    print("\t{0: <3}: {1: <18}".format(i, s[0]))
+                    i += 1
+                while True:
+                    finalChoice = input("Which of these would you like to add?: ")
+                    if not finalChoice.isnumeric() or int(finalChoice) > i:
+                        print("Invalid Choice!!")
+                    break
+                playlists = dbm.listPlaylists()
+                if playlists != None and playlists != []:
+                    print("{}'s Playlists:".format(dbm.loggedInUser))
+                    i = 1
+                    for p in playlists:
+                        print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1],
+                                                                                            math.ceil(p[2] / 60)))
+                        i += 1
+                while True:
+                    playlist = input("Which of your above playlists would you like to add this album to?: ")
+                    if playlist.isnumeric():
+                        if (int(playlist) - 1) in range(len(playlists)):
+                            break
+                    else:
+                        print("Invalid Selection (must be a number)")
+                pid = playlists[int(playlist) - 1][3]
+                sidListTuple = dbm.getSongsFromAlbum(albumlist[int(finalChoice) - 1][1])
+                sidList = []
+                for x in sidListTuple:
+                    sidList.append(x[0])
+                if dbm.addSong(pid, sidList):
+                    print("Successfully added album to playlist!")
+                else:
+                    print("Error adding song!!")
+            else:
+                print("Must be logged in!!!")
+
+
         case "search song":
             searches = ["song name", "artist", "album", "genre"]
             while True:
