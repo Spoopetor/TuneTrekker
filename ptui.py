@@ -486,7 +486,15 @@ while True:
                     pid = playlists[int(playlist)-1][3]
                     dbm.playPlaylist(pid)
                     print("Listened to " + playlists[int(playlist)-1][0])
-
+        case "profile":
+            if (not dbm.isLoggedIn()):
+                print("Please log in to display your profile.")
+            else:
+                p = dbm.countPlaylists()
+                print("number of playlists:", p)
+                print("number of followers:")
+                print("number of following:")
+                print("top artists:")
 
 
 
