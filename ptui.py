@@ -489,11 +489,14 @@ while True:
         case "profile":
             if (not dbm.isLoggedIn()):
                 print("Please log in to display your profile.")
-            else:
-                p = dbm.countPlaylists()
-                print("number of playlists:", p)
-                print("number of followers:")
-                print("number of following:")
+            else:             
+                playlists = str(dbm.countPlaylists()).strip("[(,)]")
+                followers = str(dbm.countFollowers()).strip("[(,)]")
+                following = str(dbm.countFollowing()).strip("[(,)]")
+                
+                print("number of playlists:", playlists)
+                print("followers:", followers)
+                print("following:", following)
                 print("top artists:")
 
 

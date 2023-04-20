@@ -110,7 +110,6 @@ class Model:
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE pid = {};".format(pid)) and dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
     
     def removeSong(self, pid, sid):
-        
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (sid = {} AND pid = {});".format(sid, pid))
     
     def listSongs(self, pid):
@@ -231,7 +230,12 @@ class Model:
 
     def countPlaylists(self):
         return dbExecute("SELECT COUNT(uid) FROM \"Playlist\" WHERE uid = {};".format(self.loggedInUID))
+    
+    def countFollowers(self):
+        return dbExecute("SELECT COUNT(follower) FROM \"Follows\" WHERE following = {};".format(self.loggedInUID))
 
+    def countFollowing(self):
+        return dbExecute("SELECT COUNT(following) FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
 
 
 def dbExecute(query):
