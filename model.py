@@ -2,7 +2,7 @@
 Connects UI to Database
 '''
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import psycopg2
 from sshtunnel import SSHTunnelForwarder
 import hashlib
@@ -140,13 +140,11 @@ class Model:
 
     def deleteAlbum(self, pid, sidList):
         inList = dbExecute("SELECT sid from \"SongPlaylist\" where pid = {};".format(pid))
-        for x in sidList:
-            if x in inList[0:len(inList)][0]:
-                continue
-            else:
-                sidList.remove(x)
-        print(sidList)
-        for i in sidList:
+        remList = []
+        for x in inList:
+            if x[0] in sidList:
+                remList.append(x[0])
+        for i in remList:
             if dbExecute("DELETE FROM \"SongPlaylist\" where (sid = {} and  pid = {});".format(i, pid)):
                 continue
             else:
@@ -236,6 +234,12 @@ class Model:
 
     def countFollowing(self):
         return dbExecute("SELECT COUNT(following) FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
+        def mostPopularThirty(self):
+        thirtyDaysAgo = datetime.now() - timedelta(days = 30)
+        return dbExecute("SELECT DISTINCT(s.title), s.listencount as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid WHERE l.lastlistened >= '{}' ORDER BY count DESC LIMIT 50;".format(thirtyDaysAgo))
+    
+    def mostPopularFriends(self):
+        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid INNER JOIN \"Follows\" as f ON f.following = l.uid WHERE f.follower = '{}' GROUP BY s.title ORDER BY count DESC LIMIT 50;".format(self.loggedInUID))
     
     def topArtists(self):
         artistlist = dbExecute("SELECT a.artistid, SUM(l.listencount) AS totalListens FROM \"Listens\" l INNER JOIN \"SongArtist\" a ON l.sid = a.sid WHERE l.uid = {} GROUP BY a.artistid ORDER BY SUM(l.listencount) DESC LIMIT 10;".format(self.loggedInUID))
@@ -244,6 +248,15 @@ class Model:
             name = (dbExecute("SELECT name FROM \"Artist\" WHERE artistid = {};".format(a[0])))
             artists.append((name, a[1]))
         return artists
+    def topGenres(self):
+        today = datetime.today()
+        monthStart = datetime(today.year, today.month, 1)
+        return dbExecute("SELECT g.name, SUM(l.listencount) as count FROM \"Genre\" as g INNER JOIN \"SongGenre\" as sg ON g.gid = sg.gid INNER JOIN \"Listens\" as l ON l.sid = sg.sid WHERE l.lastlistened >= '{}' GROUP BY g.name ORDER BY count DESC LIMIT 5;".format(monthStart))
+    
+    def recommendPlayHistory(self):
+        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" AS l ON l.sid = s.sid INNER JOIN \"SongArtist\" AS sa ON sa.sid = s.sid INNER JOIN \"SongGenre\" AS sg ON sg.sid = s.sid WHERE l.sid NOT IN (SELECT DISTINCT(l.sid) FROM \"Listens\" AS l WHERE l.uid = '{}') AND (sa.artistid IN (SELECT DISTINCT(a.artistid) FROM \"SongArtist\" AS a INNER JOIN \"Listens\" AS l ON l.sid = a.sid WHERE l.uid = '{}') OR sg.gid IN (SELECT DISTINCT(g.gid) FROM \"SongGenre\" AS g INNER JOIN \"Listens\" AS l ON l.sid = g.sid WHERE l.uid = '{}') OR l.uid IN (SELECT f.following FROM \"Follows\" AS f WHERE f.follower = '{}')) GROUP BY s.title ORDER BY count DESC LIMIT 25;".format(self.loggedInUID, self.loggedInUID, self.loggedInUID, self.loggedInUID))
+
+
 
 def dbExecute(query):
 
@@ -288,6 +301,7 @@ def dbExecute(query):
                 
         except:
             print("Connection failed")
+            print(result)
             return False
         
         

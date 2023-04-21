@@ -9,7 +9,9 @@ helpMessage = "Commands:\ncreate account - begins account creation process.\n\nl
               "delete playlist - delete one of your playlists.\n\nadd song - adds a song to a playlist.\n\n" \
               "remove song - removes a song from a playlist.\n\nadd ablum - adds an entire album of songs to a playlist.\n\n" \
               "remove album - removes an entire album of songs from a playlist.\n\nsearch song - lets you search for a song by name, artist" \
-              ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\n" \
+              ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\nthirty - gets the top 50 songs in the last 30 days."\
+              "\n\ntop friends - gets the top 50 songs your friends listen to.\n\ntop genres - gets the top 5 genres of the month\n\nrecommend - gets"\
+              " recommendations for you based on your play history, as well as the play history of similar users.\n\n" \
               "profile - displays how many collections and followers you have, the number of accounts you are following, and your top 10 artists.\n\n" \
               "quit - ends the application."
 
@@ -478,6 +480,9 @@ while True:
                         for p in playlists:
                             print("\t{0: <3} :  {1: <18}: {2: <3} songs  :  {3} minutes".format(i, p[0], p[1],math.ceil(p[2] / 60)))
                             i += 1
+                    else:
+                        print("\tNo Playlists!")
+                        continue
                     while True:
                         playlist = input("Which of your above playlists would you like to listen to?: ")
                         if playlist.isnumeric():
@@ -496,6 +501,42 @@ while True:
                 followers = str(dbm.countFollowers()).strip("[(,)]")
                 following = str(dbm.countFollowing()).strip("[(,)]")
                 artists = dbm.topArtists()
+
+        case "thirty":
+            if(dbm.isLoggedIn()):
+                songslist = dbm.mostPopularThirty()
+                count = 1
+                for s in songslist:
+                    print("#"+str(count)+ " - " + s[0])
+                    count += 1
+            else:
+                print("You must be logged in!")
+
+        case "top friends":
+            if(dbm.isLoggedIn()):
+                songslist = dbm.mostPopularFriends()
+                count = 1
+                for s in songslist:
+                    print("#"+str(count)+ " - " + s[0])
+                    count += 1
+            else:
+                print("You must be logged in!")
+
+        case "top genres":
+            genrelist = dbm.topGenres()
+            count = 1
+            for g in genrelist:
+                print("#"+str(count)+ " - " + g[0])
+                count += 1
+
+        case "recommend":
+            if(dbm.isLoggedIn()):
+                reclist = dbm.recommendPlayHistory()
+                print("Here's 25 songs we think you might like:")
+                for r in reclist:
+                    print(r[0])
+            else:
+                print("You must be logged in!")
 
                 print("Total Playlists:", playlists)
                 print("Followers:", followers)
