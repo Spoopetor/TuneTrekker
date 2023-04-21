@@ -46,7 +46,7 @@ class Model:
         if(not self.checkUser(username)):
                     print("Invalid Username!")
                     return
-        hashword = hashlib.sha256(password.encode('utf8')).hexdigest()
+        hashword = hashlib.sha256((password+"BANANAS").encode('utf8')).hexdigest()
 
         userpassword = dbExecute("SELECT password from \"User\" WHERE username = '{}';".format(username))
 
