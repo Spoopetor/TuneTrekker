@@ -493,11 +493,12 @@ while True:
                 playlists = str(dbm.countPlaylists()).strip("[(,)]")
                 followers = str(dbm.countFollowers()).strip("[(,)]")
                 following = str(dbm.countFollowing()).strip("[(,)]")
-                
+                artists = dbm.topArtists()
+
                 print("number of playlists:", playlists)
                 print("followers:", followers)
                 print("following:", following)
-                print("top artists:")
+                print("top artists:", artists)
 
 
 
