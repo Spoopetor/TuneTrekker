@@ -238,13 +238,12 @@ class Model:
         return dbExecute("SELECT COUNT(following) FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
     
     def topArtists(self):
-
         artistlist = dbExecute("SELECT a.artistid, SUM(l.listencount) AS totalListens FROM \"Listens\" l INNER JOIN \"SongArtist\" a ON l.sid = a.sid WHERE l.uid = {} GROUP BY a.artistid ORDER BY SUM(l.listencount) DESC LIMIT 10;".format(self.loggedInUID))
         artists = []
         for a in artistlist:
-            artists.append(dbExecute("SELECT name FROM \"Artist\" WHERE artistid = {};".format(a[0])))
+            name = (dbExecute("SELECT name FROM \"Artist\" WHERE artistid = {};".format(a[0])))
+            artists.append((name, a[1]))
         return artists
-    
 
 def dbExecute(query):
 

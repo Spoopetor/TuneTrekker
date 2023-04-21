@@ -9,7 +9,9 @@ helpMessage = "Commands:\ncreate account - begins account creation process.\n\nl
               "delete playlist - delete one of your playlists.\n\nadd song - adds a song to a playlist.\n\n" \
               "remove song - removes a song from a playlist.\n\nadd ablum - adds an entire album of songs to a playlist.\n\n" \
               "remove album - removes an entire album of songs from a playlist.\n\nsearch song - lets you search for a song by name, artist" \
-              ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\nquit - ends the application."
+              ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\n" \
+              "profile - displays how many collections and followers you have, the number of accounts you are following, and your top 10 artists.\n\n" \
+              "quit - ends the application."
 
 print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for command list.")
 
@@ -495,13 +497,14 @@ while True:
                 following = str(dbm.countFollowing()).strip("[(,)]")
                 artists = dbm.topArtists()
 
-                print("number of playlists:", playlists)
-                print("followers:", followers)
-                print("following:", following)
-                print("top artists:", artists)
-
-
-
+                print("Total Playlists:", playlists)
+                print("Followers:", followers)
+                print("Following:", following)
+                print("{}'s Top Artists:".format(dbm.loggedInUser))
+                i = 1
+                for a in artists:
+                    print("\t{0: >2}. {1: <30} Total Plays: {2}".format(i, str(a[0]).strip("'[(,)]"), str(a[1])))
+                    i += 1
 
         case _:
             print("Unknown Command!")
