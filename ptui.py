@@ -11,7 +11,9 @@ helpMessage = "Commands:\ncreate account - begins account creation process.\n\nl
               "remove album - removes an entire album of songs from a playlist.\n\nsearch song - lets you search for a song by name, artist" \
               ", album and genre.\n\nlisten - lets you either listen to a single song or an entire playlist.\n\nthirty - gets the top 50 songs in the last 30 days."\
               "\n\ntop friends - gets the top 50 songs your friends listen to.\n\ntop genres - gets the top 5 genres of the month\n\nrecommend - gets"\
-              " recommendations for you based on your play history, as well as the play history of similar users.\n\nquit - ends the application."
+              " recommendations for you based on your play history, as well as the play history of similar users.\n\n" \
+              "profile - displays how many collections and followers you have, the number of accounts you are following, and your top 10 artists.\n\n" \
+              "quit - ends the application."
 
 print("Welcome to TuneTrekker!!!!\n\tPlease enter a command or enter 'Help' for command list.")
 
@@ -491,6 +493,14 @@ while True:
                     pid = playlists[int(playlist)-1][3]
                     dbm.playPlaylist(pid)
                     print("Listened to " + playlists[int(playlist)-1][0])
+        case "profile":
+            if (not dbm.isLoggedIn()):
+                print("Please log in to display your profile.")
+            else:             
+                playlists = str(dbm.countPlaylists()).strip("[(,)]")
+                followers = str(dbm.countFollowers()).strip("[(,)]")
+                following = str(dbm.countFollowing()).strip("[(,)]")
+                artists = dbm.topArtists()
 
         case "thirty":
             if(dbm.isLoggedIn()):
@@ -528,9 +538,14 @@ while True:
             else:
                 print("You must be logged in!")
 
-
-
-
+                print("Total Playlists:", playlists)
+                print("Followers:", followers)
+                print("Following:", following)
+                print("{}'s Top Artists:".format(dbm.loggedInUser))
+                i = 1
+                for a in artists:
+                    print("\t{0: >2}. {1: <30} Total Plays: {2}".format(i, str(a[0]).strip("'[(,)]"), str(a[1])))
+                    i += 1
 
         case _:
             print("Unknown Command!")

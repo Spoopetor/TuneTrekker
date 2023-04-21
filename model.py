@@ -110,7 +110,6 @@ class Model:
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE pid = {};".format(pid)) and dbExecute("DELETE FROM \"Playlist\" WHERE pid = {};".format(pid))
     
     def removeSong(self, pid, sid):
-        
         return dbExecute("DELETE FROM \"SongPlaylist\" WHERE (sid = {} AND pid = {});".format(sid, pid))
     
     def listSongs(self, pid):
@@ -225,15 +224,30 @@ class Model:
             now = datetime.now()
             datetime_string = now.strftime("%Y-%m-%d %H:%M:%S")
             dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, x[0], datetime_string, 1, datetime_string))
-            dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(x[0]))
+            dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {};".format(x[0]))
 
-    def mostPopularThirty(self):
+    def countPlaylists(self):
+        return dbExecute("SELECT COUNT(uid) FROM \"Playlist\" WHERE uid = {};".format(self.loggedInUID))
+    
+    def countFollowers(self):
+        return dbExecute("SELECT COUNT(follower) FROM \"Follows\" WHERE following = {};".format(self.loggedInUID))
+
+    def countFollowing(self):
+        return dbExecute("SELECT COUNT(following) FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
+        def mostPopularThirty(self):
         thirtyDaysAgo = datetime.now() - timedelta(days = 30)
         return dbExecute("SELECT DISTINCT(s.title), s.listencount as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid WHERE l.lastlistened >= '{}' ORDER BY count DESC LIMIT 50;".format(thirtyDaysAgo))
     
     def mostPopularFriends(self):
         return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid INNER JOIN \"Follows\" as f ON f.following = l.uid WHERE f.follower = '{}' GROUP BY s.title ORDER BY count DESC LIMIT 50;".format(self.loggedInUID))
     
+    def topArtists(self):
+        artistlist = dbExecute("SELECT a.artistid, SUM(l.listencount) AS totalListens FROM \"Listens\" l INNER JOIN \"SongArtist\" a ON l.sid = a.sid WHERE l.uid = {} GROUP BY a.artistid ORDER BY SUM(l.listencount) DESC LIMIT 10;".format(self.loggedInUID))
+        artists = []
+        for a in artistlist:
+            name = (dbExecute("SELECT name FROM \"Artist\" WHERE artistid = {};".format(a[0])))
+            artists.append((name, a[1]))
+        return artists
     def topGenres(self):
         today = datetime.today()
         monthStart = datetime(today.year, today.month, 1)
