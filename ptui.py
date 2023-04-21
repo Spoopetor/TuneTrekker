@@ -499,6 +499,8 @@ while True:
                 for s in songslist:
                     print("#"+str(count)+ " - " + s[0])
                     count += 1
+            else:
+                print("You must be logged in!")
 
         case "top friends":
             if(dbm.isLoggedIn()):
@@ -507,6 +509,8 @@ while True:
                 for s in songslist:
                     print("#"+str(count)+ " - " + s[0])
                     count += 1
+            else:
+                print("You must be logged in!")
 
         case "top genres":
             genrelist = dbm.topGenres()
@@ -516,10 +520,13 @@ while True:
                 count += 1
 
         case "recommend":
-            reclist = dbm.recommendPlayHistory()
-            print("Here's 25 songs we think you might like:")
-            for r in reclist:
-                print(r[0])
+            if(dbm.isLoggedIn()):
+                reclist = dbm.recommendPlayHistory()
+                print("Here's 25 songs we think you might like:")
+                for r in reclist:
+                    print(r[0])
+            else:
+                print("You must be logged in!")
 
 
 
