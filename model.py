@@ -2,7 +2,7 @@
 Connects UI to Database
 '''
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import psycopg2
 from sshtunnel import SSHTunnelForwarder
 import hashlib
@@ -227,6 +227,21 @@ class Model:
             dbExecute("INSERT INTO \"Listens\" (uid, sid, lastlistened, listencount) values ({}, {}, '{}', {}) ON CONFLICT (uid, sid) DO UPDATE SET lastlistened = '{}', listencount = \"Listens\".listencount + 1;".format(self.loggedInUID, x[0], datetime_string, 1, datetime_string))
             dbExecute("UPDATE \"Song\" SET listencount = \"Song\".listencount + 1 WHERE sid = {}".format(x[0]))
 
+    def mostPopularThirty(self):
+        thirtyDaysAgo = datetime.now() - timedelta(days = 30)
+        return dbExecute("SELECT DISTINCT(s.title), s.listencount as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid WHERE l.lastlistened >= '{}' ORDER BY count DESC LIMIT 50;".format(thirtyDaysAgo))
+    
+    def mostPopularFriends(self):
+        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid INNER JOIN \"Follows\" as f ON f.following = l.uid WHERE f.follower = '{}' GROUP BY s.title ORDER BY count DESC LIMIT 50;".format(self.loggedInUID))
+    
+    def topGenres(self):
+        today = datetime.today()
+        monthStart = datetime(today.year, today.month, 1)
+        return dbExecute("SELECT g.name, SUM(l.listencount) as count FROM \"Genre\" as g INNER JOIN \"SongGenre\" as sg ON g.gid = sg.gid INNER JOIN \"Listens\" as l ON l.sid = sg.sid WHERE l.lastlistened >= '{}' GROUP BY g.name ORDER BY count DESC LIMIT 5;".format(monthStart))
+    
+    def recommendPlayHistory(self):
+        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" AS l ON l.sid = s.sid INNER JOIN \"SongArtist\" AS sa ON sa.sid = s.sid INNER JOIN \"SongGenre\" AS sg ON sg.sid = s.sid WHERE l.sid NOT IN (SELECT DISTINCT(l.sid) FROM \"Listens\" AS l WHERE l.uid = '{}') AND (sa.artistid IN (SELECT DISTINCT(a.artistid) FROM \"SongArtist\" AS a INNER JOIN \"Listens\" AS l ON l.sid = a.sid WHERE l.uid = '{}') OR sg.gid IN (SELECT DISTINCT(g.gid) FROM \"SongGenre\" AS g INNER JOIN \"Listens\" AS l ON l.sid = g.sid WHERE l.uid = '{}') OR l.uid IN (SELECT f.following FROM \"Follows\" AS f WHERE f.follower = '{}')) GROUP BY s.title ORDER BY count DESC LIMIT 25;".format(self.loggedInUID, self.loggedInUID, self.loggedInUID, self.loggedInUID))
+
 
 
 def dbExecute(query):
@@ -272,6 +287,7 @@ def dbExecute(query):
                 
         except:
             print("Connection failed")
+            print(result)
             return False
         
         
