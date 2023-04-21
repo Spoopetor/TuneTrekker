@@ -501,6 +501,14 @@ while True:
                 followers = str(dbm.countFollowers()).strip("[(,)]")
                 following = str(dbm.countFollowing()).strip("[(,)]")
                 artists = dbm.topArtists()
+                print("Total Playlists:", playlists)
+                print("Followers:", followers)
+                print("Following:", following)
+                print("{}'s Top Artists:".format(dbm.loggedInUser))
+                i = 1
+                for a in artists:
+                    print("\t{0: >2}. {1: <30} Total Plays: {2}".format(i, str(a[0]).strip("'[(,)]"), str(a[1])))
+                    i += 1
 
         case "thirty":
             if(dbm.isLoggedIn()):
@@ -538,14 +546,6 @@ while True:
             else:
                 print("You must be logged in!")
 
-                print("Total Playlists:", playlists)
-                print("Followers:", followers)
-                print("Following:", following)
-                print("{}'s Top Artists:".format(dbm.loggedInUser))
-                i = 1
-                for a in artists:
-                    print("\t{0: >2}. {1: <30} Total Plays: {2}".format(i, str(a[0]).strip("'[(,)]"), str(a[1])))
-                    i += 1
 
         case _:
             print("Unknown Command!")

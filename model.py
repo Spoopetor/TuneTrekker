@@ -34,7 +34,7 @@ class Model:
 
         now = datetime.now()
         dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        createUserQuery = "insert into \"User\" (lastAccessed, username, password, fname, lname, email) values('{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256(password.encode('utf8')).hexdigest(), fname, lname, email)
+        createUserQuery = "insert into \"User\" (lastAccessed, username, password, fname, lname, email) values('{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256((password+"BANANAS").encode('utf8')).hexdigest(), fname, lname, email)
         result = dbExecute(createUserQuery)
         if result:
             print("User Successfully Created!")
@@ -234,12 +234,6 @@ class Model:
 
     def countFollowing(self):
         return dbExecute("SELECT COUNT(following) FROM \"Follows\" WHERE follower = {};".format(self.loggedInUID))
-        def mostPopularThirty(self):
-        thirtyDaysAgo = datetime.now() - timedelta(days = 30)
-        return dbExecute("SELECT DISTINCT(s.title), s.listencount as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid WHERE l.lastlistened >= '{}' ORDER BY count DESC LIMIT 50;".format(thirtyDaysAgo))
-    
-    def mostPopularFriends(self):
-        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid INNER JOIN \"Follows\" as f ON f.following = l.uid WHERE f.follower = '{}' GROUP BY s.title ORDER BY count DESC LIMIT 50;".format(self.loggedInUID))
     
     def topArtists(self):
         artistlist = dbExecute("SELECT a.artistid, SUM(l.listencount) AS totalListens FROM \"Listens\" l INNER JOIN \"SongArtist\" a ON l.sid = a.sid WHERE l.uid = {} GROUP BY a.artistid ORDER BY SUM(l.listencount) DESC LIMIT 10;".format(self.loggedInUID))
@@ -248,6 +242,14 @@ class Model:
             name = (dbExecute("SELECT name FROM \"Artist\" WHERE artistid = {};".format(a[0])))
             artists.append((name, a[1]))
         return artists
+    
+    def mostPopularThirty(self):
+        thirtyDaysAgo = datetime.now() - timedelta(days = 30)
+        return dbExecute("SELECT DISTINCT(s.title), s.listencount as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid WHERE l.lastlistened >= '{}' ORDER BY count DESC LIMIT 50;".format(thirtyDaysAgo))
+    
+    def mostPopularFriends(self):
+        return dbExecute("SELECT s.title, SUM(l.listencount) as count FROM \"Song\" AS s INNER JOIN \"Listens\" as l ON l.sid = s.sid INNER JOIN \"Follows\" as f ON f.following = l.uid WHERE f.follower = '{}' GROUP BY s.title ORDER BY count DESC LIMIT 50;".format(self.loggedInUID))
+    
     def topGenres(self):
         today = datetime.today()
         monthStart = datetime(today.year, today.month, 1)
