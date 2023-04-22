@@ -34,7 +34,7 @@ class Model:
 
         now = datetime.now()
         dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        createUserQuery = "insert into \"User\" (lastAccessed, username, password, fname, lname, email) values('{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256(password.encode('utf8')).hexdigest(), fname, lname, email)
+        createUserQuery = "insert into \"User\" (lastAccessed, username, password, fname, lname, email) values('{}','{}','{}','{}','{}','{}');".format(dt_string, username, hashlib.sha256((password+"BANANAS").encode('utf8')).hexdigest(), fname, lname, email)
         result = dbExecute(createUserQuery)
         if result:
             print("User Successfully Created!")
@@ -46,7 +46,7 @@ class Model:
         if(not self.checkUser(username)):
                     print("Invalid Username!")
                     return
-        hashword = hashlib.sha256(password.encode('utf8')).hexdigest()
+        hashword = hashlib.sha256((password+"BANANAS").encode('utf8')).hexdigest()
 
         userpassword = dbExecute("SELECT password from \"User\" WHERE username = '{}';".format(username))
 
